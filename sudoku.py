@@ -105,6 +105,7 @@ class Game:
 
     def __init__(self):
         print("Jatek letrehozva")
+        
         self.default  = [[5,3,0,0,7,0,0,0,0],
                       [6,0,0,1,9,5,0,0,0],
                       [0,9,8,0,0,0,0,6,0],
@@ -125,6 +126,7 @@ class Game:
                       [0,0,0,4,1,9,0,0,5],
                       [0,0,0,0,8,0,0,7,9]]
 
+        #Could've done it with list comprehensions grid = [[0 for i in range(9)]for j in range(9)]
         self.solvedgrid  = [[0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0],
