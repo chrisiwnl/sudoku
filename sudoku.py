@@ -23,9 +23,9 @@ class Button:
         self.color = color
 
     def DrawButton(self):
-        #A keret megrajzolása
+        #Drawing the button outline
         py.draw.rect(self.screen,self.color,[self.x,self.y,self.width,self.height],1)
-        #A szöveg rá írása
+        #Writing the text
         font = py.font.SysFont('arial', 25)
         text = font.render(str(self.name), True, black)
         py.draw.rect(self.screen,white,[self.x+10,self.y+20,85,25],0)
@@ -55,15 +55,15 @@ class Tile:
         self.screen = screen
         self.highlighted = False
 
-        #Ha része az alap táblának a szám akkor azt nem lehet a jövőben átírni.
+        #If the number is part of the default board than the user cant change it
         if value != 0:
             self.unmovable = True
         else:
             self.unmovable = False
-    #Font létrehozása,megadott képernyőre írása
+    #Creating the font and writting it to the board
     def DrawValue(self,x,y,value,screen):
         font = py.font.SysFont('arial', 50)
-        #Ha alaptag akkor szürke, ha nem akkor fekete az írás
+        #If the value is in the default board we paint it grey, if its user inputed than its black.
         if self.unmovable == True:
             text = font.render(str(value), True, grey)
         else:
@@ -72,29 +72,29 @@ class Tile:
         py.display.flip()
         screen.blit(text, [x,y-10])
         py.display.update()
-    #Tile képernyőre rajzolása
+    #Drawing the tiles
     def Draw(self):
-        #Maga a kocka rajzolása
+        #Drawing the borders for the tiles
         py.draw.rect(self.screen,self.color,[self.pos_y,self.pos_x,self.width,self.height],1)
-        #Érték rá írása ha nem 0
+        #Writting the value if its not 0
         if self.value != 0:
             self.DrawValue(self.pos_y+35,self.pos_x+35,self.value,self.screen)
         py.display.flip()
-    #Szín váltás,ha kiválasztott
+    #Changing the color of the border if the tile is highlighted
     def Highlight(self):
         self.color = green
         self.Draw()
-        #highlighted bool igazra állítása
+        
         self.highlighted = True
-    #Szín visszaállítása ha egy másik tilera lett kattintva
+    #Switching the border color back if we click on another tile
     def UnHighlight(self):
         self.highlighted = False
         self.color = black
         self.Draw()
-    #Debuggolni,minden adatot printel konzolra
+    #Debug
     def PrintINF(self):
         print("Tile adat: {},{},{} ".format(self.x,self.y,self.value))
-    #Érték átírása
+    #Changing the value of the tile
     def SetValue(self,new_value):
         if self.unmovable == True:
             pass
@@ -156,17 +156,17 @@ class Game:
                             [0,0,0,0,0,0,0,0,0]]
 
     def possible(self,x,y,n):
-        #Sor
+        #Checking the row
         if n in self.grid[x]:
             #print("Sor Hiba")
             return False
-        #Oszlop
+        #Checking the column
         for i in range(9):
             if self.grid[i][y] == n:
                 #print("Oszlop hiba")
                 return False
 
-        #Kocka
+        #Checking the square
         xx = (x//3)*3
         yy = (y//3)*3
 
@@ -189,7 +189,6 @@ class Game:
                             self.solver()
                             self.grid[i][j] = 0
                     return
-
         if np.count_nonzero(self.grid) == 81:
             self.solvedgrid = np.copy(self.grid)
         return
@@ -210,16 +209,15 @@ class Program:
     #alsó 100 egészhez váltja a számot
     def roundup(self,x):
         return int(math.ceil(x / 100.0)) * 100
-    #létrehozza az ablakot
+    #Creating the window
     def InitDisplay(self,width,height):
         screen = py.display.set_mode((width,height))
         py.display.set_caption("Sudoku")
         screen.fill(white)
         py.display.flip()
         return screen
-    #tábla rajzolása
     def DrawBoard(self,Tilok,screen,table):
-        #Csak ne nézd és nem fáj
+        #Drawing the main lines
         py.draw.line(screen,black,[3,0],[3,900],5)
         py.draw.line(screen,black,[300,0],[300,900],5)
         py.draw.line(screen,black,[600,0],[600,900],5)
@@ -229,7 +227,7 @@ class Program:
         py.draw.line(screen,black,[0,600],[900,600],5)
         py.draw.line(screen,black,[0,897],[900,897],5)
 
-        #Tile lista létrehozása,feltöltése tile objectekel
+        #Creating the tile list and filling it up
         for i in range(9):
             tmp = []
             for j in range(9):
@@ -237,7 +235,7 @@ class Program:
                 tile.Draw()
                 tmp.append(tile)
             Tilok.append(tmp)
-    #Main function, az egész játék valójában, tartalmaza a game loopot
+    
     def main(self):
         game = Game()
         py.init()
@@ -277,7 +275,7 @@ class Program:
                             if tile.x == xx and tile.y == yy:
                                 tile.Highlight()
                                 tile.PrintINF()
-                    #Gombok kezelése, interaction kattintásra
+                    #Handeling the buttons
                     for button in Buttons:
                         if button.Collided() == "default":
                             Tilok = []
@@ -299,23 +297,23 @@ class Program:
                             self.DrawBoard(Tilok,self.main_window,game.og_grid)
 
                         elif button.Collided() == "custom":
-                            #Gomb megváltoztatása
+                            #Updateing the name of the button
                             button.SetName("save")
                             button.DrawButton()
-                            #Üres grid rajzolása
+                            #Drawing a clear grid
                             Tilok = []
                             py.draw.rect(self.main_window,white,[0,0,900,900],0)
                             self.DrawBoard(Tilok,self.main_window,game.customgrid)
                             game.grid = np.copy(game.customgrid)
 
                         elif button.Collided() == "save":
-                            #Gomb visszaállítása customra
+                            #Reseting the button to custom
                             button.SetName("custom")
                             button.DrawButton()
-                            #Custom tábla (játék tábla) megrajzolása
+                            #Drawing custom board
                             py.draw.rect(self.main_window,white,[0,0,900,900],0)
                             self.DrawBoard(Tilok,self.main_window,game.grid)
-                            #A custom gridünket beállítjuk a játék gridnek
+                            #Making our custom grid the game grid
                             game.og_grid = np.copy(game.grid)
 
                         elif button.Collided() == "exit":
@@ -326,7 +324,7 @@ class Program:
                     for lista in Tilok:
                         for tile in lista:
                             if tile.highlighted == True:
-                                 #Ha valamilyen tile ki van választva és szeretnénk értéket törölni akkor a BACKSPACE gombbal tudjuk ezt megtenni
+                                 #Making BACKSPACE to clear the value of the highlighted tile
                                 if event.key == py.K_BACKSPACE:
                                     tile.value = 0
                                     py.draw.rect(self.main_window,white,[tile.pos_y+35,tile.pos_x+35,50,50],0)
